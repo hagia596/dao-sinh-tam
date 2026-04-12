@@ -676,7 +676,7 @@ function showResult(rotation) {
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-// ── DRAGON ANIMATION ──
+// ── DRAGON SPRITE ANIMATION ──
 (function() {
   const dc = document.getElementById('dragonCanvas');
   const dctx = dc.getContext('2d');
@@ -688,336 +688,210 @@ function showResult(rotation) {
   resize();
   window.addEventListener('resize', resize);
 
-  // Dragon body: array of segments
-  const SEGS = 60;          // number of body segments
-  const SEG_LEN = 22;       // distance between segments
-  const HEAD_R = 14;        // head radius
-  const BODY_W_MAX = 11;    // max body width at neck
-  const BODY_W_MIN = 2;     // tail width
+  // ── Load dragon sprite image ──
+  const dragonImg = new Image();
+  dragonImg.src = 'dragon.png';
+  let imgLoaded = false;
+  dragonImg.onload = () => { imgLoaded = true; };
 
-  // Dragon state
-  let dragon = {
-    segs: [],       // [{x,y}]
-    angle: 0,       // head direction
-    speed: 1.8,
-    turnSpeed: 0.018,
-    targetAngle: 0,
+  // ── Dragon path: chain of nodes ──
+  const NODES = 28;        // number of spine nodes
+  const NODE_DIST = 38;    // distance between nodes
+  // Dragon display scale (fraction of screen height)
+  const DRAGON_SCALE = () => Math.min(dc.width, dc.height) * 0.55;
+
+  let state = {
+    nodes: [],
+    angle: Math.PI * 0.1,
+    speed: 1.6,
+    turnSpeed: 0.022,
+    targetAngle: Math.PI * 0.1,
+    wanderT: 0,
     boosted: false,
     boostTimer: 0,
-    // Sinusoidal wander
-    wanderT: 0,
+    opacity: 0.82,
   };
 
-  // Init segments in a line
+  // Init nodes
   const sx = window.innerWidth * 0.5;
   const sy = window.innerHeight * 0.5;
-  for (let i = 0; i < SEGS; i++) {
-    dragon.segs.push({ x: sx - i * SEG_LEN, y: sy });
+  for (let i = 0; i < NODES; i++) {
+    state.nodes.push({ x: sx - i * NODE_DIST, y: sy });
   }
-  dragon.angle = 0;
-  dragon.targetAngle = 0;
 
-  // Mouse / touch interaction
+  // ── Input ──
   let mouse = { x: -9999, y: -9999, active: false };
 
-  function onPointerMove(e) {
-    const rect = dc.getBoundingClientRect();
-    const cx = (e.touches ? e.touches[0].clientX : e.clientX);
-    const cy = (e.touches ? e.touches[0].clientY : e.clientY);
-    mouse.x = cx;
-    mouse.y = cy;
-    mouse.active = true;
-  }
-  function onPointerLeave() {
-    mouse.active = false;
-  }
-
-  // pointer-events on canvas is none, so listen on document
-  document.addEventListener('mousemove', onPointerMove);
-  document.addEventListener('touchmove', onPointerMove, { passive: true });
-  document.addEventListener('mouseleave', onPointerLeave);
-
-  // Click / tap => boost dragon
-  document.addEventListener('click', function(e) {
-    const head = dragon.segs[0];
-    const dx = e.clientX - head.x;
-    const dy = e.clientY - head.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < 120) {
-      dragon.boosted = true;
-      dragon.boostTimer = 90;
-    } else {
-      // attract head toward click
-      dragon.targetAngle = Math.atan2(dy, dx);
-      dragon.boosted = true;
-      dragon.boostTimer = 60;
-    }
+  document.addEventListener('mousemove', e => {
+    mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
   });
-  document.addEventListener('touchstart', function(e) {
+  document.addEventListener('touchmove', e => {
+    mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; mouse.active = true;
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => { mouse.active = false; });
+
+  document.addEventListener('click', e => {
+    const head = state.nodes[0];
+    const dx = e.clientX - head.x, dy = e.clientY - head.y;
+    state.targetAngle = Math.atan2(dy, dx);
+    state.boosted = true;
+    state.boostTimer = 80;
+  });
+  document.addEventListener('touchstart', e => {
     const t = e.touches[0];
-    const head = dragon.segs[0];
-    const dx = t.clientX - head.x;
-    const dy = t.clientY - head.y;
-    dragon.targetAngle = Math.atan2(dy, dx);
-    dragon.boosted = true;
-    dragon.boostTimer = 80;
+    const head = state.nodes[0];
+    state.targetAngle = Math.atan2(t.clientY - head.y, t.clientX - head.x);
+    state.boosted = true;
+    state.boostTimer = 80;
   }, { passive: true });
 
-  // Scales / spines palette
-  const SCALE_COLORS = [
-    'rgba(15,23,42,0.95)',
-    'rgba(10,10,20,0.98)',
-    'rgba(20,20,35,0.92)',
-    'rgba(5,5,15,1)',
-  ];
-  const SPINE_COLOR = 'rgba(34,197,94,0.55)';
-  const GLOW_COLOR  = 'rgba(34,197,94,0.18)';
-  const EYE_COLOR   = '#22c55e';
-
+  // ── Helpers ──
   function angleDiff(a, b) {
     let d = b - a;
-    while (d > Math.PI)  d -= 2 * Math.PI;
+    while (d > Math.PI) d -= 2 * Math.PI;
     while (d < -Math.PI) d += 2 * Math.PI;
     return d;
   }
 
-  function updateDragon() {
-    dragon.wanderT += 0.012;
+  // ── Update ──
+  function update() {
+    state.wanderT += 0.011;
+    const head = state.nodes[0];
 
-    // Determine target angle
     if (mouse.active) {
-      const head = dragon.segs[0];
-      const dx = mouse.x - head.x;
-      const dy = mouse.y - head.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist > 40) {
-        dragon.targetAngle = Math.atan2(dy, dx);
-      }
+      const dx = mouse.x - head.x, dy = mouse.y - head.y;
+      if (Math.hypot(dx, dy) > 50) state.targetAngle = Math.atan2(dy, dx);
     } else {
-      // Wander: sinusoidal + slow rotation
-      dragon.targetAngle = dragon.angle + Math.sin(dragon.wanderT) * 0.04 + 0.003;
+      state.targetAngle = state.angle
+        + Math.sin(state.wanderT * 0.9) * 0.045
+        + Math.cos(state.wanderT * 0.4) * 0.02
+        + 0.004;
     }
 
-    // Boost effect
-    let spd = dragon.speed;
-    if (dragon.boosted) {
-      spd = dragon.speed * 3.2;
-      dragon.boostTimer--;
-      if (dragon.boostTimer <= 0) dragon.boosted = false;
+    let spd = state.speed;
+    if (state.boosted) {
+      spd *= 3.5;
+      state.boostTimer--;
+      if (state.boostTimer <= 0) state.boosted = false;
     }
 
-    // Smooth turn
-    const diff = angleDiff(dragon.angle, dragon.targetAngle);
-    const ts = dragon.boosted ? dragon.turnSpeed * 2.5 : dragon.turnSpeed;
-    dragon.angle += Math.sign(diff) * Math.min(Math.abs(diff), ts);
+    const diff = angleDiff(state.angle, state.targetAngle);
+    const ts = state.boosted ? state.turnSpeed * 2.8 : state.turnSpeed;
+    state.angle += Math.sign(diff) * Math.min(Math.abs(diff), ts);
 
-    // Move head
-    const head = dragon.segs[0];
-    let nx = head.x + Math.cos(dragon.angle) * spd;
-    let ny = head.y + Math.sin(dragon.angle) * spd;
-
-    // Wrap around edges
+    let nx = head.x + Math.cos(state.angle) * spd;
+    let ny = head.y + Math.sin(state.angle) * spd;
     const W = dc.width, H = dc.height;
-    if (nx < -SEG_LEN * 2) nx = W + SEG_LEN;
-    if (nx > W + SEG_LEN * 2) nx = -SEG_LEN;
-    if (ny < -SEG_LEN * 2) ny = H + SEG_LEN;
-    if (ny > H + SEG_LEN * 2) ny = -SEG_LEN;
+    const margin = NODE_DIST * 3;
+    if (nx < -margin) nx = W + margin * 0.5;
+    if (nx > W + margin) nx = -margin * 0.5;
+    if (ny < -margin) ny = H + margin * 0.5;
+    if (ny > H + margin) ny = -margin * 0.5;
+    state.nodes[0] = { x: nx, y: ny };
 
-    dragon.segs[0] = { x: nx, y: ny };
-
-    // Chain body segments
-    for (let i = 1; i < SEGS; i++) {
-      const prev = dragon.segs[i - 1];
-      const cur  = dragon.segs[i];
-      const adx = prev.x - cur.x;
-      const ady = prev.y - cur.y;
-      const dist = Math.sqrt(adx*adx + ady*ady);
-      if (dist > SEG_LEN) {
-        const ratio = (dist - SEG_LEN) / dist;
-        dragon.segs[i] = {
-          x: cur.x + adx * ratio,
-          y: cur.y + ady * ratio,
-        };
+    for (let i = 1; i < NODES; i++) {
+      const prev = state.nodes[i - 1], cur = state.nodes[i];
+      const ddx = prev.x - cur.x, ddy = prev.y - cur.y;
+      const dist = Math.hypot(ddx, ddy);
+      if (dist > NODE_DIST) {
+        const r = (dist - NODE_DIST) / dist;
+        state.nodes[i] = { x: cur.x + ddx * r, y: cur.y + ddy * r };
       }
     }
   }
 
-  function drawDragon() {
+  // ── Draw ──
+  function draw() {
     dctx.clearRect(0, 0, dc.width, dc.height);
-    const segs = dragon.segs;
-    const n = segs.length;
+    if (!imgLoaded) return;
 
-    // ── Draw body glow (outer aura) ──
-    for (let i = n - 1; i >= 1; i--) {
-      const t = i / n;
-      const w = BODY_W_MAX * (1 - t * 0.85) + BODY_W_MIN;
-      const glowW = w + 8;
-      dctx.beginPath();
-      dctx.moveTo(segs[i].x, segs[i].y);
-      dctx.lineTo(segs[i-1].x, segs[i-1].y);
-      dctx.strokeStyle = GLOW_COLOR;
-      dctx.lineWidth = glowW;
-      dctx.lineCap = 'round';
-      dctx.stroke();
-    }
+    const nodes = state.nodes;
+    const n = nodes.length;
 
-    // ── Draw body segments (scales) ──
-    for (let i = n - 1; i >= 1; i--) {
-      const t = i / n;
-      const w = BODY_W_MAX * (1 - t * 0.85) + BODY_W_MIN;
-      const colorIdx = Math.floor(t * SCALE_COLORS.length) % SCALE_COLORS.length;
-      dctx.beginPath();
-      dctx.moveTo(segs[i].x, segs[i].y);
-      dctx.lineTo(segs[i-1].x, segs[i-1].y);
-      dctx.strokeStyle = SCALE_COLORS[colorIdx];
-      dctx.lineWidth = w;
-      dctx.lineCap = 'round';
-      dctx.stroke();
-    }
+    // Compute bounding path of the dragon image
+    // The sprite is oriented horizontally (head on left, tail on right)
+    // We draw it along the spine path using canvas transforms
 
-    // ── Draw dorsal spines ──
-    for (let i = 2; i < n - 2; i += 3) {
-      const t = i / n;
-      if (t > 0.85) continue;
-      const seg = segs[i];
-      const prev = segs[i - 1];
-      const bodyAngle = Math.atan2(seg.y - prev.y, seg.x - prev.x);
-      const perpAngle = bodyAngle - Math.PI / 2;
-      const spineLen = (BODY_W_MAX * (1 - t * 0.7)) * 0.9;
-      const tx = seg.x + Math.cos(perpAngle) * spineLen;
-      const ty = seg.y + Math.sin(perpAngle) * spineLen;
-      dctx.beginPath();
-      dctx.moveTo(seg.x, seg.y);
-      dctx.lineTo(tx, ty);
-      dctx.strokeStyle = SPINE_COLOR;
-      dctx.lineWidth = 1.2;
-      dctx.lineCap = 'round';
-      dctx.stroke();
-    }
+    // Compute total path length
+    const totalLen = (n - 1) * NODE_DIST;
+    const scale = DRAGON_SCALE() / totalLen;
+    const imgW = dragonImg.naturalWidth * scale;
+    const imgH = dragonImg.naturalHeight * scale;
 
-    // ── Draw scale texture dots ──
-    for (let i = 4; i < n - 1; i += 2) {
-      const t = i / n;
-      const w = BODY_W_MAX * (1 - t * 0.85) + BODY_W_MIN;
-      if (w < 4) continue;
-      dctx.beginPath();
-      dctx.arc(segs[i].x, segs[i].y, w * 0.28, 0, Math.PI * 2);
-      dctx.fillStyle = 'rgba(34,197,94,0.12)';
-      dctx.fill();
-    }
+    // Draw using path-following technique:
+    // Divide the image into vertical strips, each strip placed at the
+    // corresponding node position with the local tangent angle.
+    const STRIPS = n - 1;
+    const stripSrcW = dragonImg.naturalWidth / STRIPS;
 
-    // ── Draw head ──
-    const head = segs[0];
-    const neck = segs[1];
-    const headAngle = Math.atan2(head.y - neck.y, head.x - neck.x);
-
-    // Head glow
-    const glowGrad = dctx.createRadialGradient(head.x, head.y, 2, head.x, head.y, HEAD_R * 2.2);
-    glowGrad.addColorStop(0, 'rgba(34,197,94,0.22)');
-    glowGrad.addColorStop(1, 'rgba(34,197,94,0)');
-    dctx.beginPath();
-    dctx.arc(head.x, head.y, HEAD_R * 2.2, 0, Math.PI * 2);
-    dctx.fillStyle = glowGrad;
-    dctx.fill();
-
-    // Head body
     dctx.save();
-    dctx.translate(head.x, head.y);
-    dctx.rotate(headAngle);
+    dctx.globalAlpha = state.boosted ? 0.95 : state.opacity;
 
-    // Snout shape
-    dctx.beginPath();
-    dctx.ellipse(4, 0, HEAD_R, HEAD_R * 0.72, 0, 0, Math.PI * 2);
-    dctx.fillStyle = '#0a0a14';
-    dctx.fill();
-    dctx.strokeStyle = 'rgba(34,197,94,0.5)';
-    dctx.lineWidth = 1.5;
-    dctx.stroke();
+    for (let i = 0; i < STRIPS; i++) {
+      const p0 = nodes[i];
+      const p1 = nodes[i + 1];
+      const segAngle = Math.atan2(p0.y - p1.y, p0.x - p1.x); // head->tail direction
+      const segLen = Math.hypot(p0.x - p1.x, p0.y - p1.y);
 
-    // Horns
-    dctx.beginPath();
-    dctx.moveTo(2, -HEAD_R * 0.5);
-    dctx.lineTo(HEAD_R * 0.5, -HEAD_R * 1.3);
-    dctx.lineTo(HEAD_R * 0.8, -HEAD_R * 0.4);
-    dctx.fillStyle = '#111827';
-    dctx.fill();
-    dctx.strokeStyle = 'rgba(34,197,94,0.4)';
-    dctx.lineWidth = 1;
-    dctx.stroke();
+      // Width of this strip in display pixels
+      const dstW = segLen + 1; // +1 to avoid gaps
+      // Height proportional to image aspect
+      const dstH = (dragonImg.naturalHeight / dragonImg.naturalWidth) * dstW * STRIPS;
 
-    dctx.beginPath();
-    dctx.moveTo(2, HEAD_R * 0.5);
-    dctx.lineTo(HEAD_R * 0.5, HEAD_R * 1.3);
-    dctx.lineTo(HEAD_R * 0.8, HEAD_R * 0.4);
-    dctx.fillStyle = '#111827';
-    dctx.fill();
-    dctx.strokeStyle = 'rgba(34,197,94,0.4)';
-    dctx.lineWidth = 1;
-    dctx.stroke();
+      // Source rect for this strip
+      const srcX = i * stripSrcW;
+      const srcW = stripSrcW;
 
-    // Whiskers
-    dctx.beginPath();
-    dctx.moveTo(HEAD_R * 0.6, -HEAD_R * 0.2);
-    dctx.bezierCurveTo(HEAD_R * 1.5, -HEAD_R * 0.8, HEAD_R * 2.2, -HEAD_R * 0.3, HEAD_R * 2.8, -HEAD_R * 0.6);
-    dctx.strokeStyle = 'rgba(34,197,94,0.45)';
-    dctx.lineWidth = 1;
-    dctx.stroke();
+      dctx.save();
+      dctx.translate(p0.x, p0.y);
+      dctx.rotate(segAngle);
 
-    dctx.beginPath();
-    dctx.moveTo(HEAD_R * 0.6, HEAD_R * 0.2);
-    dctx.bezierCurveTo(HEAD_R * 1.5, HEAD_R * 0.8, HEAD_R * 2.2, HEAD_R * 0.3, HEAD_R * 2.8, HEAD_R * 0.6);
-    dctx.strokeStyle = 'rgba(34,197,94,0.45)';
-    dctx.lineWidth = 1;
-    dctx.stroke();
+      // Clip to strip width to avoid overdraw artifacts
+      dctx.beginPath();
+      dctx.rect(0, -dstH / 2, dstW, dstH);
+      dctx.clip();
 
-    // Eyes
-    const eyeY = HEAD_R * 0.3;
-    // Eye white/glow
-    dctx.beginPath();
-    dctx.arc(HEAD_R * 0.1, -eyeY, 4.5, 0, Math.PI * 2);
-    dctx.fillStyle = 'rgba(34,197,94,0.25)';
-    dctx.fill();
-    // Eye pupil
-    dctx.beginPath();
-    dctx.arc(HEAD_R * 0.1, -eyeY, 2.8, 0, Math.PI * 2);
-    dctx.fillStyle = EYE_COLOR;
-    dctx.fill();
-    // Eye shine
-    dctx.beginPath();
-    dctx.arc(HEAD_R * 0.1 + 1, -eyeY - 1, 1, 0, Math.PI * 2);
-    dctx.fillStyle = 'rgba(255,255,255,0.7)';
-    dctx.fill();
+      dctx.drawImage(
+        dragonImg,
+        srcX, 0, srcW, dragonImg.naturalHeight,
+        0, -dstH / 2, dstW, dstH
+      );
+
+      dctx.restore();
+    }
 
     dctx.restore();
 
-    // ── Boost flame effect ──
-    if (dragon.boosted) {
-      const tail = segs[n - 1];
-      const tailPrev = segs[n - 2];
+    // ── Boost aura ──
+    if (state.boosted) {
+      const tail = nodes[n - 1];
+      const tailPrev = nodes[n - 2];
       const tailAngle = Math.atan2(tail.y - tailPrev.y, tail.x - tailPrev.x);
-      const flameLen = 28 + Math.random() * 18;
-      const fx = tail.x + Math.cos(tailAngle) * flameLen;
-      const fy = tail.y + Math.sin(tailAngle) * flameLen;
-      const flameGrad = dctx.createRadialGradient(tail.x, tail.y, 1, fx, fy, flameLen);
-      flameGrad.addColorStop(0, 'rgba(34,197,94,0.7)');
-      flameGrad.addColorStop(0.5, 'rgba(34,197,94,0.3)');
-      flameGrad.addColorStop(1, 'rgba(34,197,94,0)');
-      dctx.beginPath();
-      dctx.moveTo(tail.x, tail.y);
-      dctx.lineTo(fx + (Math.random()-0.5)*10, fy + (Math.random()-0.5)*10);
-      dctx.strokeStyle = flameGrad;
-      dctx.lineWidth = 5 + Math.random() * 4;
-      dctx.lineCap = 'round';
-      dctx.stroke();
+      for (let f = 0; f < 3; f++) {
+        const fLen = 30 + Math.random() * 30;
+        const fAngle = tailAngle + (Math.random() - 0.5) * 0.8;
+        const fx = tail.x + Math.cos(fAngle) * fLen;
+        const fy = tail.y + Math.sin(fAngle) * fLen;
+        const grad = dctx.createLinearGradient(tail.x, tail.y, fx, fy);
+        grad.addColorStop(0, 'rgba(34,197,94,0.6)');
+        grad.addColorStop(1, 'rgba(34,197,94,0)');
+        dctx.beginPath();
+        dctx.moveTo(tail.x, tail.y);
+        dctx.lineTo(fx, fy);
+        dctx.strokeStyle = grad;
+        dctx.lineWidth = 3 + Math.random() * 4;
+        dctx.lineCap = 'round';
+        dctx.stroke();
+      }
     }
   }
 
-  function dragonLoop() {
-    updateDragon();
-    drawDragon();
-    requestAnimationFrame(dragonLoop);
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
   }
-  dragonLoop();
+  loop();
 })();
 
 // ── BUILD HEX GRID ──
