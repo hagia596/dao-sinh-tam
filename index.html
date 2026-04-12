@@ -801,85 +801,73 @@ function showResult(rotation) {
   }
 
   // ── Draw ──
+  // Strategy: draw the dragon image as a single sprite centered on the
+  // midpoint of the spine, rotated to match the head direction, and
+  // scaled to fit the full spine length. This gives a clean single-body look.
   function draw() {
     dctx.clearRect(0, 0, dc.width, dc.height);
     if (!imgLoaded) return;
 
     const nodes = state.nodes;
     const n = nodes.length;
+    const head = nodes[0];
+    const tail = nodes[n - 1];
 
-    // Compute bounding path of the dragon image
-    // The sprite is oriented horizontally (head on left, tail on right)
-    // We draw it along the spine path using canvas transforms
+    // Overall bounding box of the spine
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const nd of nodes) {
+      if (nd.x < minX) minX = nd.x;
+      if (nd.x > maxX) maxX = nd.x;
+      if (nd.y < minY) minY = nd.y;
+      if (nd.y > maxY) maxY = nd.y;
+    }
 
-    // Compute total path length
-    const totalLen = (n - 1) * NODE_DIST;
-    const scale = DRAGON_SCALE() / totalLen;
-    const imgW = dragonImg.naturalWidth * scale;
-    const imgH = dragonImg.naturalHeight * scale;
+    // Spine center
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
 
-    // Draw using path-following technique:
-    // Divide the image into vertical strips, each strip placed at the
-    // corresponding node position with the local tangent angle.
-    const STRIPS = n - 1;
-    const stripSrcW = dragonImg.naturalWidth / STRIPS;
+    // Head-to-tail direction angle
+    const headAngle = Math.atan2(head.y - tail.y, head.x - tail.x);
+
+    // Spine length (sum of segment lengths)
+    let spineLen = 0;
+    for (let i = 1; i < n; i++) {
+      spineLen += Math.hypot(nodes[i].x - nodes[i-1].x, nodes[i].y - nodes[i-1].y);
+    }
+
+    // Target display width = spine length * 1.15 (a bit wider for head/tail overhang)
+    const dW = spineLen * 1.18;
+    const dH = dW * (dragonImg.naturalHeight / dragonImg.naturalWidth);
 
     dctx.save();
-    dctx.globalAlpha = state.boosted ? 0.95 : state.opacity;
+    dctx.globalAlpha = state.boosted ? 0.92 : 0.78;
 
-    for (let i = 0; i < STRIPS; i++) {
-      const p0 = nodes[i];
-      const p1 = nodes[i + 1];
-      const segAngle = Math.atan2(p0.y - p1.y, p0.x - p1.x); // head->tail direction
-      const segLen = Math.hypot(p0.x - p1.x, p0.y - p1.y);
+    // Translate to spine center, rotate to head direction
+    dctx.translate(cx, cy);
+    dctx.rotate(headAngle);
 
-      // Width of this strip in display pixels
-      const dstW = segLen + 1; // +1 to avoid gaps
-      // Height proportional to image aspect
-      const dstH = (dragonImg.naturalHeight / dragonImg.naturalWidth) * dstW * STRIPS;
-
-      // Source rect for this strip
-      const srcX = i * stripSrcW;
-      const srcW = stripSrcW;
-
-      dctx.save();
-      dctx.translate(p0.x, p0.y);
-      dctx.rotate(segAngle);
-
-      // Clip to strip width to avoid overdraw artifacts
-      dctx.beginPath();
-      dctx.rect(0, -dstH / 2, dstW, dstH);
-      dctx.clip();
-
-      dctx.drawImage(
-        dragonImg,
-        srcX, 0, srcW, dragonImg.naturalHeight,
-        0, -dstH / 2, dstW, dstH
-      );
-
-      dctx.restore();
-    }
+    // Draw image centered
+    dctx.drawImage(dragonImg, -dW / 2, -dH / 2, dW, dH);
 
     dctx.restore();
 
     // ── Boost aura ──
     if (state.boosted) {
-      const tail = nodes[n - 1];
       const tailPrev = nodes[n - 2];
       const tailAngle = Math.atan2(tail.y - tailPrev.y, tail.x - tailPrev.x);
-      for (let f = 0; f < 3; f++) {
-        const fLen = 30 + Math.random() * 30;
-        const fAngle = tailAngle + (Math.random() - 0.5) * 0.8;
+      for (let f = 0; f < 4; f++) {
+        const fLen = 35 + Math.random() * 35;
+        const fAngle = tailAngle + (Math.random() - 0.5) * 0.9;
         const fx = tail.x + Math.cos(fAngle) * fLen;
         const fy = tail.y + Math.sin(fAngle) * fLen;
         const grad = dctx.createLinearGradient(tail.x, tail.y, fx, fy);
-        grad.addColorStop(0, 'rgba(34,197,94,0.6)');
+        grad.addColorStop(0, 'rgba(34,197,94,0.65)');
         grad.addColorStop(1, 'rgba(34,197,94,0)');
         dctx.beginPath();
         dctx.moveTo(tail.x, tail.y);
         dctx.lineTo(fx, fy);
         dctx.strokeStyle = grad;
-        dctx.lineWidth = 3 + Math.random() * 4;
+        dctx.lineWidth = 3 + Math.random() * 5;
         dctx.lineCap = 'round';
         dctx.stroke();
       }
