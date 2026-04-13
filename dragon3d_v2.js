@@ -9,13 +9,16 @@ import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158/exampl
  * Tích hợp từ mã nguồn người dùng cung cấp và tối ưu cho trang Đạo Sinh Tâm.
  */
 
-(function initDragonV2() {
+function initDragonV2() {
+    console.log("Initializing Dragon V2...");
     const canvas = document.getElementById('dragon3dCanvas');
-    if (!canvas) return;
+    if (!canvas) {
+        console.error("Canvas #dragon3dCanvas not found!");
+        return;
+    }
 
     // ===== SCENE =====
     const scene = new THREE.Scene();
-    // scene.fog = new THREE.FogExp2(0x020617, 0.02); // Tùy chọn sương mù
 
     // ===== CAMERA =====
     const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 2000);
@@ -85,8 +88,15 @@ import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158/exampl
     const loader = new GLTFLoader();
     let dragon, mixer;
 
-    // Thử tải model rồng, nếu không có sẽ dùng hiệu ứng hạt tập trung
+    // Fallback: Quả cầu năng lượng (Linh khí)
+    const orbGeo = new THREE.SphereGeometry(1, 32, 32);
+    const orbMat = new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.8 });
+    dragon = new THREE.Mesh(orbGeo, orbMat);
+    scene.add(dragon);
+
+    // Thử tải model rồng
     loader.load('dragon.glb', (gltf) => {
+        scene.remove(dragon); // Xóa orb khi có rồng
         dragon = gltf.scene;
         dragon.scale.set(4, 4, 4);
 
@@ -108,11 +118,6 @@ import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158/exampl
         gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
     }, undefined, (error) => {
         console.warn('Dragon model not found, using energy orb fallback.');
-        // Fallback: Quả cầu năng lượng (Linh khí)
-        const orbGeo = new THREE.SphereGeometry(1, 32, 32);
-        const orbMat = new THREE.MeshBasicMaterial({ color: 0x22c55e, transparent: true, opacity: 0.8 });
-        dragon = new THREE.Mesh(orbGeo, orbMat);
-        scene.add(dragon);
     });
 
     // ===== CURVE PATH (QUỸ ĐẠO BAY) =====
@@ -145,7 +150,6 @@ import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158/exampl
             const pos = curve.getPointAt(t);
             const tangent = curve.getTangentAt(t);
             
-            // Thêm tương tác chuột nhẹ vào vị trí
             dragon.position.x = pos.x + mouseX;
             dragon.position.y = pos.y - mouseY;
             dragon.position.z = pos.z;
@@ -155,7 +159,6 @@ import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158/exampl
             const matrix = new THREE.Matrix4().lookAt(dragon.position, dragon.position.clone().add(tangent), up);
             dragon.quaternion.setFromRotationMatrix(matrix);
             
-            // Hiệu ứng nhịp thở/phát sáng
             rimLight.intensity = 5 + Math.sin(elapsed * 2) * 5;
             rimLight.position.copy(dragon.position);
         }
@@ -177,4 +180,11 @@ import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158/exampl
         renderer.setSize(window.innerWidth, window.innerHeight);
         composer.setSize(window.innerWidth, window.innerHeight);
     });
-})();
+}
+
+// Đảm bảo khởi chạy khi DOM đã sẵn sàng
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initDragonV2();
+} else {
+    document.addEventListener('DOMContentLoaded', initDragonV2);
+}
