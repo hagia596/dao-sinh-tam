@@ -1,90 +1,282 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đạo Sinh Tâm – Vòng Quay 64 Quẻ Kinh Dịch</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đạo Sinh Tâm – Vòng Quay 64 Quẻ Kinh Dịch</title>
   <style>
-      :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-header: #020617;
-            --accent: #22c55e;
-            --accent-glow: rgba(34,197,94,0.35);
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
-      }
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-header: #020617;
+      --accent: #22c55e;
+      --accent-glow: rgba(34,197,94,0.35);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
 
-      * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-      html { scroll-behavior: smooth; }
+    /* ── DRAGON CANVAS ── */
+    #dragon3dCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 1;
+      display: block !important;
+      visibility: visible !important;
+      mix-blend-mode: screen;
+    }
 
-      body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-      }
+    /* Header stays above dragon */
+    header {
+      z-index: 10001 !important;
+    }
 
-      /* ── DRAGON CANVAS ── */
-      #dragon3dCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 10000;
-            opacity: 1;
-            display: block !important;
-            visibility: visible !important;
-      }
+    /* ── HEADER ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(2,6,23,0.92);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      z-index: 10001;
+      border-bottom: 1px solid var(--border);
+    }
 
-      /* Header stays above dragon */
-      header {
-            z-index: 10001 !important;
-      }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--accent);
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
 
-      /* ── HEADER ── */
-      header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            background: rgba(2,6,23,0.92);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 32px;
-            z-index: 10001;
-            border-bottom: 1px solid var(--border);
-      }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+      transition: color .2s;
+    }
 
-      .logo {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--accent);
-            text-shadow: 0 0 12px var(--accent-glow);
-      }
+    nav a:hover { color: var(--accent); }
 
-      nav a {
-            color: var(--text-muted);
-            text-decoration: none;
-            margin-left: 24px;
-            font-size: 14px;
-            transition: color .2s;
-      }
-      nav a:hover { color: var(--accent); }
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 80px 32px 32px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,41,59,0.7));
+    }
 
-      /* ── HERO ── */
-      #hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 120px 20px 60px;
-            background: radial-gradient(ellipse at 50% 0%, rgba(34
-  </style></title>
-  </head>
+    #hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, var(--accent), #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: var(--accent);
+      color: #000;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    /* ── CONTENT SECTIONS ── */
+    section {
+      padding: 80px 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 100;
+    }
+
+    section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 32px;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      transition: all .3s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .card h3 {
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── SOCIALS ── */
+    #socials {
+      background: rgba(30,41,59,0.5);
+    }
+
+    .social-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--accent);
+      text-decoration: none;
+      transition: all .3s;
+      font-size: 20px;
+    }
+
+    .social-link:hover {
+      background: var(--accent);
+      color: #000;
+      transform: scale(1.1);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg-header);
+      border-top: 1px solid var(--border);
+      padding: 32px;
+      text-align: center;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 100;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <canvas id="dragon3dCanvas"></canvas>
+
+  <header>
+    <div class="logo">☯ Đạo Sinh Tâm</div>
+    <nav>
+      <a href="#hero">Trang Chủ</a>
+      <a href="#about">Giới Thiệu</a>
+      <a href="#services">Dịch Vụ</a>
+      <a href="#socials">Kết Nối</a>
+    </nav>
+  </header>
+
+  <section id="hero">
+    <h1>Đạo Sinh Tâm</h1>
+    <p>Vòng Quay 64 Quẻ Kinh Dịch - Khám Phá Bí Ẩn Vũ Trụ</p>
+    <a href="#about" class="cta-btn">Khám Phá Ngay</a>
+  </section>
+
+  <section id="about">
+    <h2>Giới Thiệu</h2>
+    <div class="card">
+      <h3>Kinh Dịch - Nguồn Gốc Của Trí Tuệ</h3>
+      <p>Kinh Dịch là một trong những tác phẩm cổ xưa nhất của nền văn minh Trung Hoa, chứa đựng những bí mật sâu sắc về vũ trụ, nhân sinh và vận mệnh. Vòng quay 64 quẻ đại diện cho tất cả các trạng thái có thể xảy ra trong cuộc sống.</p>
+    </div>
+    <div class="card">
+      <h3>Đạo Sinh Tâm - Con Đường Tâm Linh</h3>
+      <p>Chúng tôi mang đến cho bạn những kiến thức sâu sắc về Kinh Dịch, giúp bạn hiểu rõ hơn về bản thân, cuộc sống và vận mệnh của mình. Mỗi quẻ là một lời khuyên, một hướng dẫn từ vũ trụ.</p>
+    </div>
+  </section>
+
+  <section id="services">
+    <h2>Dịch Vụ</h2>
+    <div class="card">
+      <h3>Tư Vấn Kinh Dịch</h3>
+      <p>Nhận được những lời khuyên từ các chuyên gia Kinh Dịch để giải quyết những thắc mắc trong cuộc sống của bạn.</p>
+    </div>
+    <div class="card">
+      <h3>Phân Tích Vận Mệnh</h3>
+      <p>Khám phá những bí mật ẩn giấu trong vận mệnh của bạn thông qua các quẻ Kinh Dịch.</p>
+    </div>
+    <div class="card">
+      <h3>Hướng Dẫn Tâm Linh</h3>
+      <p>Bước vào hành trình tâm linh với những hướng dẫn từ những người có kinh nghiệm.</p>
+    </div>
+  </section>
+
+  <section id="socials">
+    <h2>Kết Nối Với Chúng Tôi</h2>
+    <div class="social-links">
+      <a href="https://www.tiktok.com/@daoshinhtam" class="social-link" title="TikTok">🎵</a>
+      <a href="https://www.facebook.com/daoshinhtam" class="social-link" title="Facebook">f</a>
+      <a href="https://www.instagram.com/daoshinhtam" class="social-link" title="Instagram">📷</a>
+      <a href="https://www.threads.net/@daoshinhtam" class="social-link" title="Threads">@</a>
+      <a href="https://facebook.com/groups/315568554759304" class="social-link" title="Group Facebook">👥</a>
+      <a href="https://m.me/cm/AbYq3UG-EbZcpykd/?send_source=cm%3Acopy_invite_link&join_source=cm%3Axma" class="social-link" title="Nhóm Chat">💬</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Đạo Sinh Tâm. Tất cả quyền được bảo vệ. | <a href="#">Chính Sách Bảo Mật</a> | <a href="#">Điều Khoản Sử Dụng</a></p>
+  </footer>
+
+  <script type="module" src="dragon3d_v2.js"></script>
+</body>
+</html>
