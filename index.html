@@ -15,23 +15,35 @@
     --text-muted: #94a3b8;
     --border: #334155;
   }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   html { scroll-behavior: smooth; }
+
   body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: var(--bg-dark);
     color: var(--text);
     min-height: 100vh;
+    overflow-x: hidden;
   }
-  #dragonCanvas { display: none; }
+
+  /* ── DRAGON CANVAS ── */
   #dragon3dCanvas {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     pointer-events: none;
     z-index: 999;
-    opacity: 0.75;
+    opacity: 0.85;
   }
+
+  /* Header stays above dragon */
+  header {
+    z-index: 1000 !important;
+  }
+
+  /* ── HEADER ── */
   header {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -44,6 +56,7 @@
     z-index: 1000;
     border-bottom: 1px solid var(--border);
   }
+
   .logo {
     font-size: 22px;
     font-weight: 700;
@@ -51,6 +64,7 @@
     color: var(--accent);
     text-shadow: 0 0 12px var(--accent-glow);
   }
+
   nav a {
     color: var(--text-muted);
     text-decoration: none;
@@ -59,6 +73,8 @@
     transition: color .2s;
   }
   nav a:hover { color: var(--accent); }
+
+  /* ── HERO ── */
   #hero {
     min-height: 100vh;
     display: flex;
@@ -69,6 +85,7 @@
     padding: 120px 20px 60px;
     background: radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.12) 0%, transparent 70%);
   }
+
   #hero h1 {
     font-size: clamp(2.2rem, 6vw, 4rem);
     font-weight: 800;
@@ -79,6 +96,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
   #hero p {
     color: var(--text-muted);
     font-size: 1.1rem;
@@ -86,7 +104,9 @@
     line-height: 1.7;
     margin-bottom: 36px;
   }
+
   .btn-group { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
   .btn {
     display: inline-block;
     padding: 12px 26px;
@@ -98,6 +118,7 @@
     border: none;
     transition: all .25s;
   }
+
   .btn-primary {
     background: var(--accent);
     color: #0f172a;
@@ -108,6 +129,7 @@
     box-shadow: 0 0 30px var(--accent-glow);
     transform: translateY(-2px);
   }
+
   .btn-outline {
     background: transparent;
     color: var(--text);
@@ -118,13 +140,17 @@
     color: var(--accent);
     transform: translateY(-2px);
   }
+
+  /* ── SOCIALS ── */
   #socials {
     padding: 80px 20px;
     text-align: center;
     background: var(--bg-card);
   }
+
   #socials h2 { font-size: 1.8rem; margin-bottom: 10px; }
   #socials p { color: var(--text-muted); margin-bottom: 36px; }
+
   .social-grid {
     display: flex;
     flex-wrap: wrap;
@@ -133,6 +159,7 @@
     max-width: 600px;
     margin: 0 auto;
   }
+
   .social-card {
     display: flex;
     align-items: center;
@@ -149,42 +176,73 @@
     min-width: 140px;
     justify-content: center;
   }
+
   .social-card:hover {
     border-color: var(--accent);
     color: var(--accent);
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   }
+
   .social-icon { font-size: 20px; }
+
+  /* ── WHEEL SECTION ── */
   #kinhdich {
     padding: 80px 20px;
     text-align: center;
     max-width: 900px;
     margin: 0 auto;
   }
-  #kinhdich h2 { font-size: 1.8rem; margin-bottom: 10px; }
-  #kinhdich .subtitle { color: var(--text-muted); margin-bottom: 48px; font-size: 1rem; }
-  .wheel-wrapper { display: flex; flex-direction: column; align-items: center; gap: 28px; }
-  .wheel-container { position: relative; width: 340px; height: 340px; }
+
+  #kinhdich h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  #kinhdich .subtitle {
+    color: var(--text-muted);
+    margin-bottom: 48px;
+    font-size: 1rem;
+  }
+
+  .wheel-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .wheel-container {
+    position: relative;
+    width: 340px;
+    height: 340px;
+  }
+
   #wheelCanvas {
     border-radius: 50%;
     box-shadow: 0 0 40px rgba(34,197,94,0.2), 0 0 0 4px var(--border);
     cursor: pointer;
     transition: box-shadow .3s;
   }
-  #wheelCanvas:hover { box-shadow: 0 0 60px rgba(34,197,94,0.35), 0 0 0 4px var(--accent); }
+  #wheelCanvas:hover {
+    box-shadow: 0 0 60px rgba(34,197,94,0.35), 0 0 0 4px var(--accent);
+  }
+
+  /* Pointer arrow */
   .pointer {
     position: absolute;
     top: -18px;
     left: 50%;
     transform: translateX(-50%);
-    width: 0; height: 0;
+    width: 0;
+    height: 0;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
     border-top: 24px solid var(--accent);
     filter: drop-shadow(0 0 6px var(--accent));
     z-index: 10;
   }
+
   #spinBtn {
     padding: 14px 40px;
     border: none;
@@ -203,7 +261,12 @@
     transform: translateY(-2px);
     box-shadow: 0 0 32px var(--accent-glow);
   }
-  #spinBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+  #spinBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Result card */
   .result-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -215,15 +278,64 @@
     transform: translateY(16px);
     transition: opacity .5s, transform .5s;
   }
-  .result-card.show { opacity: 1; transform: translateY(0); }
-  .result-number { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .result-name { font-size: 2rem; font-weight: 800; color: var(--accent); text-shadow: 0 0 16px var(--accent-glow); margin-bottom: 10px; }
-  .result-symbol { font-size: 2.5rem; margin-bottom: 10px; }
-  .result-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
-  #bangque { padding: 80px 20px; background: var(--bg-card); }
-  #bangque h2 { text-align: center; font-size: 1.8rem; margin-bottom: 10px; }
-  #bangque .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 40px; }
-  .hex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; max-width: 960px; margin: 0 auto; }
+  .result-card.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .result-number {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .result-name {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    text-shadow: 0 0 16px var(--accent-glow);
+    margin-bottom: 10px;
+  }
+
+  .result-symbol {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+
+  .result-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* ── HEXAGRAM TABLE ── */
+  #bangque {
+    padding: 80px 20px;
+    background: var(--bg-card);
+  }
+
+  #bangque h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  #bangque .subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+  }
+
+  .hex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
   .hex-item {
     background: var(--bg-dark);
     border: 1px solid var(--border);
@@ -233,10 +345,30 @@
     transition: all .2s;
     cursor: default;
   }
-  .hex-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-  .hex-item .num { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-  .hex-item .sym { font-size: 1.4rem; margin-bottom: 4px; }
-  .hex-item .name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .hex-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+
+  .hex-item .num {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .hex-item .sym {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+
+  .hex-item .name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* ── FOOTER ── */
   footer {
     background: var(--bg-header);
     text-align: center;
@@ -245,7 +377,15 @@
     font-size: 14px;
     border-top: 1px solid var(--border);
   }
-  footer .footer-logo { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+
+  footer .footer-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     header { padding: 12px 18px; }
     nav a { margin-left: 14px; font-size: 13px; }
@@ -255,8 +395,10 @@
 </style>
 </head>
 <body>
-<canvas id="dragonCanvas"></canvas>
+
+<!-- DRAGON BACKGROUND CANVAS (Three.js WebGL) -->
 <canvas id="dragon3dCanvas"></canvas>
+
 <header>
   <div class="logo">☯ Đạo Sinh Tâm</div>
   <nav>
@@ -266,6 +408,8 @@
     <a href="#bangque">64 Quẻ</a>
   </nav>
 </header>
+
+<!-- HERO -->
 <section id="hero">
   <h1>Đạo Sinh Tâm</h1>
   <p>Khám phá trí tuệ ngàn năm của Kinh Dịch – 64 quẻ huyền bí dẫn lối tư duy và soi sáng con đường.</p>
@@ -274,115 +418,126 @@
     <a href="#bangque" class="btn btn-outline">Xem 64 Quẻ</a>
   </div>
 </section>
+
+<!-- SOCIALS -->
 <section id="socials">
   <h2>Kết Nối Với Chúng Tôi</h2>
   <p>Theo dõi để nhận nội dung về Kinh Dịch, triết học và phát triển bản thân</p>
   <div class="social-grid">
-    <a href="https://www.tiktok.com/@daosinhtam888" target="_blank" class="social-card">
+    <a href="https://www.tiktok.com/@daosinhtam88" class="social-card" target="_blank">
       <span class="social-icon">🎵</span> TikTok
     </a>
-    <a href="https://www.facebook.com/HGbinhz2356" target="_blank" class="social-card">
+    <a href="https://www.facebook.com/daosinhtam88" class="social-card" target="_blank">
       <span class="social-icon">📘</span> Facebook
     </a>
-    <a href="https://facebook.com/groups/315568554759304" target="_blank" class="social-card">
+    <a href="https://www.facebook.com/groups/315568554759304" class="social-card" target="_blank">
       <span class="social-icon">👥</span> Group Facebook
     </a>
-    <a href="https://m.me/cm/AbYq3UG-EbZcpykd/?send_source=cm%3Acopy_invite_link&join_source=cm%3Axma" target="_blank" class="social-card">
+    <a href="https://m.me/cm/AbYq3UG-EbZcpykd/?send_source=cm%3Acopy_invite_link&join_source=cm%3Axma" class="social-card" target="_blank">
       <span class="social-icon">💬</span> Nhóm Chat
     </a>
-    <a href="https://instagram.com" target="_blank" class="social-card">
+    <a href="https://www.instagram.com/daosinhtam88" class="social-card" target="_blank">
       <span class="social-icon">📸</span> Instagram
     </a>
-    <a href="https://threads.net" target="_blank" class="social-card">
+    <a href="https://www.threads.net/@daosinhtam88" class="social-card" target="_blank">
       <span class="social-icon">🧵</span> Threads
     </a>
   </div>
 </section>
+
+<!-- WHEEL SECTION -->
 <section id="kinhdich">
   <h2>Vòng Quay 64 Quẻ Kinh Dịch</h2>
   <p class="subtitle">Tập trung tâm trí, nhấn nút và lắng nghe thông điệp từ quẻ dịch</p>
+  
   <div class="wheel-wrapper">
     <div class="wheel-container">
       <div class="pointer"></div>
-      <canvas id="wheelCanvas" width="340" height="340"></canvas>
+      <canvas id="wheelCanvas" width="340" height="340" onclick="spin()"></canvas>
     </div>
+    
     <button id="spinBtn" onclick="spin()">🎯 Quay Quẻ</button>
-    <div class="result-card" id="resultCard">
-      <div class="result-number" id="resultNumber"></div>
-      <div class="result-symbol" id="resultSymbol"></div>
-      <div class="result-name" id="resultName"></div>
-      <div class="result-desc" id="resultDesc"></div>
+    
+    <div id="resultCard" class="result-card">
+      <div id="resultNumber" class="result-number"></div>
+      <div id="resultSymbol" class="result-symbol"></div>
+      <div id="resultName" class="result-name"></div>
+      <p id="resultDesc" class="result-desc"></p>
     </div>
   </div>
 </section>
+
+<!-- HEXAGRAM TABLE -->
 <section id="bangque">
   <h2>64 Quẻ Kinh Dịch</h2>
   <p class="subtitle">Hệ thống 64 quẻ – nền tảng triết học phương Đông</p>
-  <div class="hex-grid" id="hexGrid"></div>
+  <div id="hexGrid" class="hex-grid"></div>
 </section>
+
 <footer>
   <div class="footer-logo">☯ Đạo Sinh Tâm</div>
-  <p>Trí tuệ Kinh Dịch – Soi sáng tâm trí &nbsp;|&nbsp; © 2025 Đạo Sinh Tâm</p>
+  <p>© 2024 Đạo Sinh Tâm. All rights reserved.</p>
 </footer>
+
 <script>
 const hexagrams = [
-  { num: 1,  name: "Càn",       sym: "䷀", desc: "Trời – Sức mạnh sáng tạo, kiên cường, lãnh đạo." },
-  { num: 2,  name: "Khôn",      sym: "䷁", desc: "Đất – Tiếp nhận, nuôi dưỡng, nhu thuận." },
-  { num: 3,  name: "Truân",     sym: "䷂", desc: "Khó khăn ban đầu – Kiên nhẫn vượt qua thử thách." },
-  { num: 4,  name: "Mông",      sym: "䷃", desc: "Ấu trĩ – Học hỏi, tìm thầy, mở mang trí tuệ." },
-  { num: 5,  name: "Nhu",       sym: "䷄", desc: "Chờ đợi – Kiên nhẫn chờ thời cơ thuận lợi." },
-  { num: 6,  name: "Tụng",      sym: "䷅", desc: "Tranh tụng – Tránh xung đột, tìm hòa giải." },
-  { num: 7,  name: "Sư",        sym: "䷆", desc: "Quân đội – Kỷ luật, tổ chức, lãnh đạo tập thể." },
-  { num: 8,  name: "Tỷ",        sym: "䷇", desc: "Đoàn kết – Hợp tác, liên minh, gắn bó." },
-  { num: 9,  name: "Tiểu Súc",  sym: "䷈", desc: "Kiềm chế nhỏ – Tích lũy dần, chờ thời." },
-  { num: 10, name: "Lý",        sym: "䷉", desc: "Dẫm lên – Cẩn thận, lễ nghĩa, tiến bước khéo léo." },
-  { num: 11, name: "Thái",      sym: "䷊", desc: "Thái bình – Hòa hợp, thịnh vượng, cân bằng." },
+  { num: 1,  name: "Càn",      sym: "䷀", desc: "Trời – Sức mạnh sáng tạo, kiên trì, dẫn đầu." },
+  { num: 2,  name: "Khôn",     sym: "䷁", desc: "Đất – Sự bao dung, tiếp nhận, hỗ trợ tận tụy." },
+  { num: 3,  name: "Truân",    sym: "䷂", desc: "Gian nan – Khởi đầu khó khăn, cần kiên nhẫn tích lũy." },
+  { num: 4,  name: "Mông",     sym: "䷃", desc: "Non nớt – Cần giáo dục, học hỏi và sự chỉ dẫn." },
+  { num: 5,  name: "Nhu",      sym: "䷄", desc: "Chờ đợi – Kiên nhẫn chờ thời cơ, không nên vội vã." },
+  { num: 6,  name: "Tụng",     sym: "䷅", desc: "Tranh chấp – Cần thận trọng, tránh xung đột, tìm sự hòa giải." },
+  { num: 7,  name: "Sư",       sym: "䷆", desc: "Quân đội – Kỷ luật, tổ chức và sự lãnh đạo sáng suốt." },
+  { num: 8,  name: "Tỷ",       sym: "䷇", desc: "Đoàn kết – Sự gắn kết, hỗ trợ và lòng tin lẫn nhau." },
+  { num: 9,  name: "Tiểu Súc", sym: "䷈", desc: "Tích lũy nhỏ – Kiên nhẫn với những bước tiến khiêm tốn." },
+  { num: 10, name: "Lý",        sym: "䷉", desc: "Ứng xử – Thận trọng trong hành động và giao tiếp." },
+  { num: 11, name: "Thái",      sym: "䷊", desc: "Hanh thông – Thời kỳ hòa bình, phát triển và thịnh vượng." },
   { num: 12, name: "Bĩ",        sym: "䷋", desc: "Bế tắc – Thời khó, giữ vững phẩm hạnh." },
   { num: 13, name: "Đồng Nhân", sym: "䷌", desc: "Đồng lòng – Hợp tác, đoàn kết vì mục tiêu chung." },
   { num: 14, name: "Đại Hữu",   sym: "䷍", desc: "Sở hữu lớn – Thịnh vượng, chia sẻ, hào phóng." },
   { num: 15, name: "Khiêm",     sym: "䷎", desc: "Khiêm tốn – Đức khiêm nhường mang lại thành công." },
   { num: 16, name: "Dự",        sym: "䷏", desc: "Hân hoan – Nhiệt tình, chuẩn bị, hành động." },
-  { num: 17, name: "Tùy",       sym: "䷐", desc: "Theo đuổi – Thích nghi, đi theo lẽ phải." },
+  { num: 17, name: "Tùy",       sym: "䷐", desc: "Đi theo – Thích nghi, linh hoạt, thuận thời." },
   { num: 18, name: "Cổ",        sym: "䷑", desc: "Sửa chữa – Khắc phục sai lầm, đổi mới." },
-  { num: 19, name: "Lâm",       sym: "䷒", desc: "Tiến gần – Tiếp cận, quản lý, phát triển." },
-  { num: 20, name: "Quan",      sym: "䷓", desc: "Quan sát – Xem xét, học hỏi, làm gương." },
-  { num: 21, name: "Phệ Hạp",   sym: "䷔", desc: "Cắn hợp – Giải quyết trở ngại, thực thi công lý." },
-  { num: 22, name: "Bí",        sym: "䷕", desc: "Trang sức – Vẻ đẹp bên ngoài, văn hóa, nghệ thuật." },
-  { num: 23, name: "Bác",       sym: "䷖", desc: "Tan rã – Thời suy vi, giữ vững sự tĩnh lặng." },
-  { num: 24, name: "Phục",      sym: "䷗", desc: "Trở lại – Hồi phục, bắt đầu chu kỳ mới." },
-  { num: 25, name: "Vô Vọng",   sym: "䷘", desc: "Chân thực – Hành động tự nhiên, không vọng tưởng." },
-  { num: 26, name: "Đại Súc",   sym: "䷙", desc: "Tích lũy lớn – Nuôi dưỡng tài năng, chờ thời cơ." },
+  { num: 19, name: "Lâm",       sym: "䷒", desc: "Tiếp cận – Tiến gần, quan tâm, giám sát." },
+  { num: 20, name: "Quan",      sym: "䷓", desc: "Quan sát – Nhìn rộng, suy xét, chiêm nghiệm." },
+  { num: 21, name: "Phệ Hạp",   sym: "䷔", desc: "Cắn xé – Quyết đoán, xử lý vấn đề dứt khoát." },
+  { num: 22, name: "Bí",        sym: "䷕", desc: "Trang trí – Vẻ đẹp bề ngoài, nghệ thuật." },
+  { num: 23, name: "Bác",       sym: "䷖", desc: "Bóc tách – Suy tàn, buông bỏ, tái sinh." },
+  { num: 24, name: "Phục",      sym: "䷗", desc: "Trở lại – Phục hồi, khởi đầu mới, hy vọng." },
+  { num: 25, name: "Vô Vọng",   sym: "䷘", desc: "Vô tư – Hành động chân thật, không tính toán." },
+  { num: 26, name: "Đại Súc",   sym: "䷙", desc: "Kiềm chế lớn – Tích lũy sức mạnh, tiềm năng." },
   { num: 27, name: "Di",        sym: "䷚", desc: "Nuôi dưỡng – Chăm sóc bản thân và người khác." },
-  { num: 28, name: "Đại Quá",   sym: "䷛", desc: "Quá mức – Vượt qua giới hạn, hành động phi thường." },
-  { num: 29, name: "Khảm",      sym: "䷜", desc: "Nguy hiểm – Vượt qua thử thách bằng lòng tin." },
-  { num: 30, name: "Ly",        sym: "䷝", desc: "Lửa – Sáng suốt, bám trụ vào điều đúng đắn." },
-  { num: 31, name: "Hàm",       sym: "䷞", desc: "Cảm ứng – Sự thu hút, tình cảm, giao hòa." },
-  { num: 32, name: "Hằng",      sym: "䷟", desc: "Bền vững – Kiên trì, giữ vững mục tiêu." },
-  { num: 33, name: "Độn",       sym: "䷠", desc: "Ẩn lui – Rút lui đúng lúc để bảo toàn lực lượng." },
-  { num: 34, name: "Đại Tráng", sym: "䷡", desc: "Sức mạnh lớn – Sử dụng quyền lực đúng đắn." },
-  { num: 35, name: "Tấn",       sym: "䷢", desc: "Tiến lên – Phát triển, thăng tiến, tỏa sáng." },
-  { num: 36, name: "Minh Di",   sym: "䷣", desc: "Ánh sáng bị che khuất – Giữ vững niềm tin trong bóng tối." },
-  { num: 37, name: "Gia Nhân",  sym: "䷤", desc: "Người trong nhà – Đạo đức gia đình, sự ổn định." },
-  { num: 38, name: "Khuê",      sym: "䷥", desc: "Chia rẽ – Tìm điểm chung trong sự khác biệt." },
-  { num: 39, name: "Kiển",      sym: "䷦", desc: "Gian nan – Dừng lại suy ngẫm, tìm hướng đi mới." },
-  { num: 40, name: "Giải",      sym: "䷧", desc: "Giải tỏa – Giải quyết khó khăn, tha thứ." },
-  { num: 41, name: "Tổn",       sym: "䷨", desc: "Bớt đi – Kiềm chế ham muốn, tích lũy tinh thần." },
-  { num: 42, name: "Ích",       sym: "䷩", desc: "Tăng thêm – Giúp đỡ người khác, cải thiện bản thân." },
-  { num: 43, name: "Quải",      sym: "䷪", desc: "Quyết liệt – Loại bỏ cái xấu, quyết đoán." },
-  { num: 44, name: "Cấu",       sym: "䷫", desc: "Gặp gỡ – Cẩn thận với những ảnh hưởng tiêu cực." },
-  { num: 45, name: "Tụy",       sym: "䷬", desc: "Tụ họp – Đoàn kết, cúng tế, tập hợp sức mạnh." },
-  { num: 46, name: "Thăng",     sym: "䷭", desc: "Thăng tiến – Nỗ lực vươn lên từng bước." },
-  { num: 47, name: "Khốn",      sym: "䷮", desc: "Khốn cùng – Giữ vững ý chí trong nghịch cảnh." },
-  { num: 48, name: "Tỉnh",      sym: "䷯", desc: "Cái giếng – Nguồn lực vô tận, phục vụ cộng đồng." },
-  { num: 49, name: "Cách",      sym: "䷰", desc: "Cải cách – Thay đổi, đổi mới để phù hợp." },
-  { num: 50, name: "Đỉnh",      sym: "䷱", desc: "Cái đỉnh – Thiết lập trật tự mới, nuôi dưỡng tài năng." },
-  { num: 51, name: "Chấn",      sym: "䷲", desc: "Sấm sét – Sự thức tỉnh, hành động quyết liệt." },
-  { num: 52, name: "Cấn",       sym: "䷳", desc: "Núi – Tĩnh lặng, dừng lại đúng lúc." },
-  { num: 53, name: "Tiệm",      sym: "䷴", desc: "Tiến dần – Phát triển bền vững, từng bước một." },
-  { num: 54, name: "Quy Muội",  sym: "䷵", desc: "Thiếu nữ về nhà chồng – Cẩn thận trong các mối quan hệ." },
-  { num: 55, name: "Phong",     sym: "䷶", desc: "Thịnh vượng – Đỉnh cao, chia sẻ sự sung túc." },
-  { num: 56, name: "Lữ",        sym: "䷷", desc: "Lữ hành – Thích nghi khi ở nơi xa lạ." },
-  { num: 57, name: "Tốn",       sym: "䷸", desc: "Gió – Nhu thuận, thâm nhập, linh hoạt." },
+  { num: 28, name: "Đại Quá",   sym: "䷛", desc: "Vượt mức – Áp lực lớn, cần cân bằng." },
+  { num: 29, name: "Khảm",      sym: "䷜", desc: "Nước – Nguy hiểm, kiên trì vượt qua thử thách." },
+  { num: 30, name: "Ly",        sym: "䷝", desc: "Lửa – Sáng suốt, rõ ràng, phụ thuộc lẫn nhau." },
+  { num: 31, name: "Hàm",       sym: "䷞", desc: "Cảm ứng – Tương tác, thu hút, tình cảm." },
+  { num: 32, name: "Hằng",      sym: "䷟", desc: "Kiên định – Bền bỉ, nhất quán, trường tồn." },
+  { num: 33, name: "Độn",       sym: "䷠", desc: "Lui về – Rút lui khéo léo, bảo toàn lực lượng." },
+  { num: 34, name: "Đại Tráng", sym: "䷡", desc: "Sức mạnh lớn – Năng lượng dồi dào, hành động." },
+  { num: 35, name: "Tấn",       sym: "䷢", desc: "Tiến lên – Thăng tiến, phát triển, rạng rỡ." },
+  { num: 36, name: "Minh Di",   sym: "䷣", desc: "Tối tăm – Ẩn nhẫn, bảo vệ ánh sáng nội tâm." },
+  { num: 37, name: "Gia Nhân",  sym: "䷤", desc: "Gia đình – Vai trò, trách nhiệm, hòa thuận." },
+  { num: 38, name: "Khuê",      sym: "䷥", desc: "Đối lập – Mâu thuẫn nhỏ, tìm điểm chung." },
+  { num: 39, name: "Kiển",      sym: "䷦", desc: "Trở ngại – Khó khăn, cần trợ giúp, kiên nhẫn." },
+  { num: 40, name: "Giải",      sym: "䷧", desc: "Giải phóng – Tháo gỡ, tha thứ, nhẹ nhàng." },
+  { num: 41, name: "Tổn",       sym: "䷨", desc: "Giảm bớt – Hy sinh, đơn giản hóa, tiết kiệm." },
+  { num: 42, name: "Ích",       sym: "䷩", desc: "Tăng thêm – Lợi ích, phát triển, hào phóng." },
+  { num: 43, name: "Quải",      sym: "䷪", desc: "Quyết đoán – Đột phá, công bố sự thật." },
+  { num: 44, name: "Cấu",       sym: "䷫", desc: "Gặp gỡ – Cơ hội bất ngờ, cảnh giác." },
+  { num: 45, name: "Tụy",       sym: "䷬", desc: "Tập hợp – Đoàn tụ, hội tụ, cộng đồng." },
+  { num: 46, name: "Thăng",     sym: "䷭", desc: "Thăng lên – Nỗ lực bền bỉ, từng bước tiến." },
+  { num: 47, name: "Khốn",      sym: "䷮", desc: "Kiệt sức – Gian nan, giữ vững ý chí." },
+  { num: 48, name: "Tỉnh",      sym: "䷯", desc: "Giếng nước – Nguồn tài nguyên, nuôi dưỡng cộng đồng." },
+  { num: 49, name: "Cách",      sym: "䷰", desc: "Cách mạng – Thay đổi, đổi mới, biến chuyển." },
+  { num: 50, name: "Đỉnh",      sym: "䷱", desc: "Vạc đỉnh – Văn hóa, nuôi dưỡng, biến đổi." },
+  { num: 51, name: "Chấn",      sym: "䷲", desc: "Sấm sét – Cú sốc, thức tỉnh, hành động." },
+  { num: 52, name: "Cấn",       sym: "䷳", desc: "Núi – Tĩnh lặng, thiền định, dừng lại." },
+  { num: 53, name: "Tiệm",      sym: "䷴", desc: "Tiến dần – Phát triển từng bước, kiên nhẫn." },
+  { num: 54, name: "Quy Muội",  sym: "䷵", desc: "Cô gái về nhà chồng – Quan hệ, vai trò phụ." },
+  { num: 55, name: "Phong",     sym: "䷶", desc: "Phong phú – Đỉnh cao, sung mãn, rực rỡ." },
+  { num: 56, name: "Lữ",        sym: "䷷", desc: "Lữ khách – Hành trình, linh hoạt, thích nghi." },
+  { num: 57, name: "Tốn",       sym: "䷸", desc: "Gió – Thấm nhuần, ảnh hưởng nhẹ nhàng." },
   { num: 58, name: "Đoài",      sym: "䷹", desc: "Hồ – Vui vẻ, giao tiếp, chia sẻ." },
   { num: 59, name: "Hoán",      sym: "䷺", desc: "Phân tán – Hòa tan rào cản, kết nối." },
   { num: 60, name: "Tiết",      sym: "䷻", desc: "Tiết chế – Giới hạn, kỷ luật, cân bằng." },
@@ -391,68 +546,149 @@ const hexagrams = [
   { num: 63, name: "Ký Tế",     sym: "䷾", desc: "Đã hoàn thành – Cân bằng tạm thời, duy trì." },
   { num: 64, name: "Vị Tế",     sym: "䷿", desc: "Chưa hoàn thành – Tiềm năng, giai đoạn chuyển tiếp." }
 ];
+
+// ── WHEEL CANVAS ──
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
-const N = hexagrams.length;
+const N = hexagrams.length; // 64
 const sliceAngle = (2 * Math.PI) / N;
-const colors = ["#1e3a5f","#1a4731","#3d1a5f","#5f3d1a","#1a3d5f","#2d4a1e","#4a1e3d","#4a3d1e"];
+
+const colors = [
+  "#1e3a5f","#1a4731","#3d1a5f","#5f3d1a",
+  "#1a3d5f","#2d4a1e","#4a1e3d","#4a3d1e"
+];
+
 let currentAngle = 0;
 let spinning = false;
+
 function drawWheel(rotation) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const cx = canvas.width / 2; const cy = canvas.height / 2; const r = cx - 4;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = cx - 4;
+
   for (let i = 0; i < N; i++) {
     const startAngle = rotation + i * sliceAngle;
     const endAngle = startAngle + sliceAngle;
     const midAngle = startAngle + sliceAngle / 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, startAngle, endAngle); ctx.closePath();
-    ctx.fillStyle = colors[i % colors.length]; ctx.fill();
-    ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 1; ctx.stroke();
-    ctx.save(); ctx.translate(cx, cy); ctx.rotate(midAngle); ctx.textAlign = "right";
-    ctx.fillStyle = "#e2e8f0"; ctx.font = "bold 9px sans-serif"; ctx.fillText(hexagrams[i].name, r - 6, 3); ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = "#0f172a";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(midAngle);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "bold 9px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText(hexagrams[i].name, r - 6, 3);
+    ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(cx, cy, 28, 0, 2 * Math.PI); ctx.fillStyle = "#020617"; ctx.fill();
-  ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = "#22c55e"; ctx.font = "bold 18px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("☯", cx, cy);
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
+  ctx.fillStyle = "#020617";
+  ctx.fill();
+  ctx.strokeStyle = "#22c55e";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = "#22c55e";
+  ctx.font = "bold 18px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("☯", cx, cy);
 }
+
 drawWheel(currentAngle);
+
 function spin() {
-  if (spinning) return; spinning = true;
-  const btn = document.getElementById("spinBtn"); btn.disabled = true; btn.textContent = "⏳ Đang quay...";
-  const card = document.getElementById("resultCard"); card.classList.remove("show");
+  if (spinning) return;
+  spinning = true;
+
+  const btn = document.getElementById("spinBtn");
+  btn.disabled = true;
+  btn.textContent = "⏳ Đang quay...";
+
+  const card = document.getElementById("resultCard");
+  card.classList.remove("show");
+
   const extraSpins = 8 + Math.floor(Math.random() * 5);
-  const totalAngle = extraSpins * 2 * Math.PI + Math.random() * 2 * Math.PI;
-  const startAngle = currentAngle; const duration = 4000; const startTime = performance.now();
-  function animate(now) {
-    const t = Math.min((now - startTime) / duration, 1);
-    const easedT = 1 - Math.pow(1 - t, 4);
-    const angle = startAngle + totalAngle * easedT;
-    drawWheel(angle);
-    if (t < 1) requestAnimationFrame(animate);
-    else { currentAngle = (startAngle + totalAngle) % (2 * Math.PI); drawWheel(currentAngle); spinning = false; btn.disabled = false; btn.textContent = "🎯 Quay Quẻ"; showResult(currentAngle); }
+  const extraAngle = Math.random() * 2 * Math.PI;
+  const totalAngle = extraSpins * 2 * Math.PI + extraAngle;
+  const targetAngle = currentAngle + totalAngle;
+
+  const duration = 4000;
+  const startTime = performance.now();
+  const startAngle = currentAngle;
+
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 4);
   }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const easedT = easeOut(t);
+    const angle = startAngle + totalAngle * easedT;
+
+    drawWheel(angle);
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentAngle = targetAngle % (2 * Math.PI);
+      drawWheel(currentAngle);
+      spinning = false;
+      btn.disabled = false;
+      btn.textContent = "🎯 Quay Quẻ";
+      showResult(currentAngle);
+    }
+  }
+
   requestAnimationFrame(animate);
 }
+
 function showResult(rotation) {
   const pointerAngle = -Math.PI / 2;
   let normalized = ((pointerAngle - rotation) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
   const index = Math.floor(normalized / sliceAngle) % N;
   const hex = hexagrams[index];
+
   document.getElementById("resultNumber").textContent = `Quẻ số ${hex.num} / 64`;
   document.getElementById("resultSymbol").textContent = hex.sym;
   document.getElementById("resultName").textContent = hex.name;
   document.getElementById("resultDesc").textContent = hex.desc;
-  const card = document.getElementById("resultCard"); card.classList.add("show");
+
+  const card = document.getElementById("resultCard");
+  card.classList.add("show");
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
+
+// ── BUILD HEX GRID ──
 const grid = document.getElementById("hexGrid");
 hexagrams.forEach(h => {
-  const div = document.createElement("div"); div.className = "hex-item";
-  div.innerHTML = `<div class="num">Quẻ ${h.num}</div><div class="sym">${h.sym}</div><div class="name">${h.name}</div>`;
-  div.title = h.desc; grid.appendChild(div);
+  const div = document.createElement("div");
+  div.className = "hex-item";
+  div.innerHTML = `
+    <div class="num">Quẻ ${h.num}</div>
+    <div class="sym">${h.sym}</div>
+    <div class="name">${h.name}</div>
+  `;
+  div.title = h.desc;
+  grid.appendChild(div);
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="dragon3d.js"></script>
+
+<!-- DRAGON 3D V2 -->
+<script type="module" src="dragon3d_v2.js"></script>
+
 </body>
 </html>
